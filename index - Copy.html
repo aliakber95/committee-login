@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF‑8" />
+  <title>Committee Login</title>
+  <style>
+    body {
+      background-color: #014421;
+      font-family: sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      height: 100vh; margin: 0;
+    }
+    .login-box {
+      background-color: #fcdada;
+      border: 3px solid gold;
+      border-radius: 10px;
+      padding: 30px; width: 320px; text-align: center;
+    }
+    .login-box img {
+      width: 150px; height: 150px;
+      border-radius: 50%; margin-bottom: 15px;
+    }
+    input, button {
+      width: 90%; padding: 10px;
+      margin-top: 10px; border-radius: 6px; border: 1px solid #aaa;
+    }
+    button {
+      background-color: gold;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+    .forgot {
+      margin-top: 10px; font-size: 0.9em;
+    }
+    a {
+      color: #333; text-decoration: underline;
+      cursor: pointer;
+    }
+    #result { margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+<div class="login-box">
+<img src="https://drive.google.com/thumbnail?id=1-HVP2z3-BwXhkWbdphXEuDFhPNSVzLcH&sz=s800" alt="TKM Hawally Logo">
+  <h2>Member Login</h2>
+  <input type="text" id="its" placeholder="ITS Number" />
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="login()">Login</button>
+  <div class="forgot"><a onclick="forgot()">Forgot Password?</a> | <a onclick="change()">Change Password</a></div>
+  <p id="result"></p>
+</div>
+
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbw2O5QlIan6x8wVYIpeaUphFTnegA7vixJitPFgZQXjAt4oxsxojU9U3Kx94_4me4qQ/exec";
+  function login() {
+    const its = document.getElementById("its").value;
+    const password = document.getElementById("password").value;
+    document.getElementById("result").innerText = "Checking…";
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ its, password })
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (d.status === "success") {
+        document.getElementById("result").innerHTML =
+          `✅ Hello <b>${d.name}</b><br/>Pending: <b>${d.pending}</b>`;
+      } else {
+        document.getElementById("result").innerText = d.message;
+      }
+    })
+    .catch(e => {
+      console.error(e);
+      document.getElementById("result").innerText = "Error connecting to server.";
+    });
+  }
+
+  function forgot() {
+    const its = prompt("Enter your ITS number:");
+    if (!its) return;
+    fetch(`${API_URL}?function=sendPassword&its=${its}`)
+      .then(r => r.text())
+      .then(msg => alert(msg))
+      .catch(() => alert("Error sending password."));
+  }
+
+  function change() {
+    const its = prompt("Enter your ITS number:");
+    const oldPw = prompt("Enter current password:");
+    const newPw = prompt("Enter new password:");
+    if (!its || !oldPw || !newPw) return;
+    fetch(`${API_URL}?function=changePassword&its=${its}&old=${oldPw}&new=${newPw}`)
+      .then(r => r.text())
+      .then(msg => alert(msg))
+      .catch(() => alert("Error changing password."));
+  }
+</script>
+
+</body>
+</html>
